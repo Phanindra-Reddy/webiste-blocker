@@ -1,6 +1,8 @@
 let blockThisSiteBtn = document.querySelector("#blockThisSite");
-let clearAllBlockedSitesBtn = document.querySelector("#clearAllBlockedSites")
+let clearAllBlockedSitesBtn = document.querySelector("#clearAllBlockedSites");
 let listOfBlockedSitesDiv = document.querySelector("#listOfBlockedSites");
+let noBlockedSitesFoundDiv = document.querySelector("#noBlockedSitesFound");
+let blockedSitesHeading = document.querySelector("#blockedSitesHeading");
 
 document.addEventListener("DOMContentLoaded", () => {
   blockThisSiteBtn.addEventListener("click", (e) => {
@@ -51,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.storage.sync.get("websites", function (data) {
       const blockedWebsites = data.websites;
       if (blockedWebsites?.length > 0) {
+        noBlockedSitesFoundDiv.classList.add("hidden");
+        blockedSitesHeading.classList.add("block");
         listOfBlockedSitesDiv.innerHTML += blockedWebsites?.map(
           (website) =>
             `
@@ -80,10 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `
         );
+      } else {
+        noBlockedSitesFoundDiv.classList.add("flex");
+        blockedSitesHeading.classList.add("hidden");
       }
     });
   }
-
   loadAllBlockedWebsites();
 
   //block UI of current tab
@@ -96,22 +102,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (alreadyExisted?.length > 0) {
         console.log("in if cond", currentTab.id);
-        async () => {
-          const [tab] = await chrome.tabs.query({
-            active: true,
-            lastFocusedWindow: true,
-          });
-          const res = await chrome.tabs.sendMessage(tab.id, {
-            action: "getData",
-          });
-          console.log(res);
-        };
       }
     });
   });
 
   //clear all blocked websites
-  //   chrome.storage.sync.clear(function () {
-  //     console.log("Sync storage cleared");
-  //   });
+  clearAllBlockedSitesBtn.addEventListener("click", () => {
+    chrome.storage.sync.clear(function () {
+      console.log("Sync storage cleared");
+    });
+  });
 });

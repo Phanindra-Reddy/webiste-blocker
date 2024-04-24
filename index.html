@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
   </head>
-  <body class="w-80 h-96 p-5">
+  <body class="w-80 h-96 p-5 relative">
     <button
       id="blockThisSite"
       class="w-full h-10 text-center font-medium rounded-md bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
@@ -23,8 +23,10 @@
       >This is already blocked website</small
     >
 
-    <h4 class="font-medium text-base mt-5 mb-2">Blocked Websites</h4>
-    <div id="listOfBlockedSites">
+    <h4 class="font-medium text-base mt-5 mb-2" id="blockedSitesHeading">
+      Blocked Websites
+    </h4>
+    <div id="listOfBlockedSites" class="max-h-80 overflow-y-scroll mb-4">
       <!-- <div class="flex items-center justify-between px-2 py-1 rounded-md ease-in duration-300 hover:bg-gray-100">
         <div class="flex items-center gap-2">
           <img
@@ -50,12 +52,23 @@
       </div> -->
     </div>
 
+    <div
+      id="noBlockedSitesFound"
+      class="flex flex-col items-center justify-center"
+    >
+      <img src="/notfound.png" alt="not found" class="w-1/2" />
+      <h4 class="font-medium text-base mt-5 mb-2">
+        No Blocked Websites Found!
+      </h4>
+    </div>
+
     <button
       id="clearAllBlockedSites"
-      class="w-full h-10 my-5 text-center font-medium rounded-md bg-gradient-to-r from-red-500 to-red-900 text-white"
+      class="w-full h-10 mt-5 mb-2 text-center font-medium rounded-md bg-gradient-to-r from-red-500 to-red-900 text-white sticky left-0 bottom-0 right-0"
     >
       Unblock All Sites
     </button>
+
     <script src="popup.js"></script>
   </body>
 </html>
