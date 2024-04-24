@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Stay Focused",
+  "description": "Make Yourself Free From Toxic World",
+  "version": "1.0",
+  "permissions": ["activeTab", "tabs", "storage", "topSites", "cookies"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "stay_focused.png"
+  }
+}
