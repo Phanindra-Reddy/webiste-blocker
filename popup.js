@@ -77,9 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     />
                     <h3 class="font-semibold">${website?.urlData?.title}</h3>
                 </div>
-                <button data-tab-id=${
-                  website.id
-                } class="rounded-md p-1 text-red-500 hover:bg-red-500 hover:text-white ease-linear duration-500">
+                <button data-tab-id=${website.id} data-window-id=${
+              website?.urlData?.id
+            } class="rounded-md p-1 text-red-500 hover:bg-red-500 hover:text-white ease-linear duration-500">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -115,12 +115,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetDiv = e.target;
     const btn = targetDiv.closest("button");
     const tabId = btn.dataset.tabId;
+    const windowId = btn.dataset.windowId;
 
     if (tabId) {
       console.log("clicked", tabId);
       chrome.runtime.sendMessage({
         action: "deleteWebsite",
-        data: tabId,
+        data: {
+          id: tabId,
+          windowId,
+        },
       });
     }
   });

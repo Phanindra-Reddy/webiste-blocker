@@ -3,7 +3,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     chrome.storage.sync.get({ websites: [] }, function (data) {
       let blockedWebsites = data.websites || [];
 
-      blockedWebsites.push(message.data);
+        blockedWebsites.push(message.data);
+        
+        console.log(blockedWebsites);
 
       chrome.storage.sync.set({ websites: blockedWebsites }, function () {
         if (chrome.runtime.lastError) {
@@ -12,15 +14,18 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           );
         } else {
           console.log("Website stored successfully!");
-          chrome.runtime.sendMessage({ action: "updateUI" });
-          chrome.tabs.query({ url: message.data.url }, function (tabs) {
-            if (tabs && tabs.length > 0) {
-              // Send a message to the content script of the tab
-              chrome.tabs.sendMessage(tabs[0].id, {
-                action: "performActionOnDocument",
-              });
-            }
-          });
+            chrome.runtime.sendMessage({ action: "updateUI" });
+            chrome.scripting.executeScript({
+              target: { tabId: message.data.urlData.id },
+              files: ["content.js"],
+            });
+          //   chrome.tabs.query({ url: message.data.url }, function (tabs) {
+          //     if (tabs && tabs.length > 0) {
+          //       chrome.tabs.sendMessage(tabs[0].id, {
+          //         action: "performActionOnDocument",
+          //       });
+          //     }
+          //   });
         }
       });
     });
@@ -29,7 +34,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       let blockedWebsites = data.websites || [];
 
       let updatedWebsites = blockedWebsites?.filter(
-        (x) => x.id !== message.data
+        (x) => x.id !== message.data.id
       );
 
       console.log(updatedWebsites, message.data);
@@ -41,7 +46,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           );
         } else {
           console.log("Array stored successfully!");
-          chrome.runtime.sendMessage({ action: "updateUI" });
+            chrome.runtime.sendMessage({ action: "updateUI" });
+            chrome.scripting.executeScript({
+              target: { tabId: message.data.windowId },
+              files: ["content.js"],
+            });
         }
       });
     });

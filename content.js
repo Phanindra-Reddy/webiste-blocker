@@ -8,3 +8,10 @@ chrome.storage.sync.get("websites", function (data) {
     }
   }
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message === "changeContent") {
+    document.body.innerHTML = "<h1>Hello World!</h1>";
+    sendResponse({ message: "Content changed" });
+  }
+});
