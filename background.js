@@ -11,8 +11,16 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             "Error storing array: " + chrome.runtime.lastError.message
           );
         } else {
-          console.log("Array stored successfully!");
+          console.log("Website stored successfully!");
           chrome.runtime.sendMessage({ action: "updateUI" });
+          chrome.tabs.query({ url: message.data.url }, function (tabs) {
+            if (tabs && tabs.length > 0) {
+              // Send a message to the content script of the tab
+              chrome.tabs.sendMessage(tabs[0].id, {
+                action: "performActionOnDocument",
+              });
+            }
+          });
         }
       });
     });

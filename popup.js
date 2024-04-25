@@ -99,12 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
         listOfBlockedSitesDiv.innerHTML = htmlContent;
         noBlockedSitesFoundDiv.classList.add("hidden");
         blockedSitesHeading.classList.add("block");
-         blockedSitesHeading.classList.remove("hidden");
+        blockedSitesHeading.classList.remove("hidden");
       } else {
         listOfBlockedSitesDiv.innerHTML = "";
         noBlockedSitesFoundDiv.classList.remove("hidden");
         blockedSitesHeading.classList.remove("block");
-        blockedSitesHeading.classList.add("hidden")
+        blockedSitesHeading.classList.add("hidden");
       }
     });
   }
