@@ -1,12 +1,46 @@
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "addWebsite") {
+    chrome.storage.sync.get({ websites: [] }, function (data) {
+      let blockedWebsites = data.websites || [];
 
+      blockedWebsites.push(message.data);
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    // Check if the message contains HTML content
-    if (message.html) {
-        // Handle the received HTML document
-        console.log("HTML document of active tab:", message.html);
-        
-        // Now you can further process or use the HTML document as needed
-    }
+      chrome.storage.sync.set({ websites: blockedWebsites }, function () {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Error storing array: " + chrome.runtime.lastError.message
+          );
+        } else {
+          console.log("Array stored successfully!");
+          chrome.runtime.sendMessage({ action: "updateUI" });
+        }
+      });
+    });
+  } else if (message.action === "deleteWebsite") {
+    chrome.storage.sync.get({ websites: [] }, function (data) {
+      let blockedWebsites = data.websites || [];
+
+      let updatedWebsites = blockedWebsites?.filter(
+        (x) => x.id !== message.data
+      );
+
+      console.log(updatedWebsites, message.data);
+
+      chrome.storage.sync.set({ websites: updatedWebsites }, function () {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Error storing array: " + chrome.runtime.lastError.message
+          );
+        } else {
+          console.log("Array stored successfully!");
+          chrome.runtime.sendMessage({ action: "updateUI" });
+        }
+      });
+    });
+  } else if (message.action === "deleteAllWebsites") {
+    chrome.storage.sync.clear(function () {
+      console.log("Sync storage cleared");
+      chrome.runtime.sendMessage({ action: "updateUI" });
+    });
+  }
 });

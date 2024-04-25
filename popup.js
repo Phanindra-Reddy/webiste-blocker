@@ -10,15 +10,19 @@ document.addEventListener("DOMContentLoaded", () => {
       let currentTab = tabs[0];
       let currentUrl = currentTab?.url;
 
-      console.log(currentTab);
+      function generateUniqueId() {
+        const randomPart = Math.random().toString(36).substring(2, 9);
+        const timePart = Date.now().toString(36);
+        return timePart + randomPart;
+      }
 
       let newWebsite = {
-        id: new Date().getTime(),
+        id: generateUniqueId(),
         url: currentUrl,
         urlData: tabs[0],
       };
 
-      chrome.storage.sync.get("websites", function (data) {
+      chrome.storage.sync.get({ websites: [] }, function (data) {
         let blockedWebsites = data.websites || [];
 
         let alreadyExisted = blockedWebsites.filter(
@@ -31,34 +35,40 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelector("#alreadyExisted").classList.add("hidden");
           }, 2000);
         } else {
-          blockedWebsites.push(newWebsite);
+          chrome.runtime.sendMessage({
+            action: "addWebsite",
+            data: newWebsite,
+          });
         }
-        console.log(blockedWebsites);
-
-        chrome.storage.sync.set({ websites: blockedWebsites }, function () {
-          if (chrome.runtime.lastError) {
-            console.error(
-              "Error storing array: " + chrome.runtime.lastError.message
-            );
-          } else {
-            console.log("Array stored successfully!");
-          }
-        });
       });
     });
   });
 
   //load all the blocked websites
-  function loadAllBlockedWebsites() {
+
+  chrome.runtime.onMessage.addListener(function (
+    message,
+    sender,
+    sendResponse
+  ) {
+    if (message.action === "updateUI") {
+      updatePopupUI();
+    }
+  });
+
+  function updatePopupUI() {
     chrome.storage.sync.get("websites", function (data) {
-      const blockedWebsites = data.websites;
+      const blockedWebsites = data?.websites || [];
+      console.log(blockedWebsites?.length);
+
       if (blockedWebsites?.length > 0) {
-        noBlockedSitesFoundDiv.classList.add("hidden");
-        blockedSitesHeading.classList.add("block");
-        listOfBlockedSitesDiv.innerHTML += blockedWebsites?.map(
+        listOfBlockedSitesDiv.innerHTML = "";
+        const htmlContent = blockedWebsites?.map(
           (website) =>
             `
-            <div class="flex items-center justify-between px-2 py-1 rounded-md ease-in duration-300 hover:bg-gray-100" key=${website?.urlData?.id}>
+            <div class="flex items-center justify-between px-2 py-1 rounded-md ease-in duration-300 hover:bg-gray-100" key=${
+              website?.urlData?.id
+            }>
                 <div class="flex items-center gap-2">
                     <img
                         src=${website?.urlData?.favIconUrl || "web.png"}
@@ -67,7 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     />
                     <h3 class="font-semibold">${website?.urlData?.title}</h3>
                 </div>
-                <button class="rounded-md p-1 text-red-500 hover:bg-red-500 hover:text-white ease-linear duration-500">
+                <button data-tab-id=${
+                  website.id
+                } class="rounded-md p-1 text-red-500 hover:bg-red-500 hover:text-white ease-linear duration-500">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -84,35 +96,39 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `
         );
+        listOfBlockedSitesDiv.innerHTML = htmlContent;
+        noBlockedSitesFoundDiv.classList.add("hidden");
+        blockedSitesHeading.classList.add("block");
+         blockedSitesHeading.classList.remove("hidden");
       } else {
-        noBlockedSitesFoundDiv.classList.add("flex");
-        blockedSitesHeading.classList.add("hidden");
+        listOfBlockedSitesDiv.innerHTML = "";
+        noBlockedSitesFoundDiv.classList.remove("hidden");
+        blockedSitesHeading.classList.remove("block");
+        blockedSitesHeading.classList.add("hidden")
       }
     });
   }
-  loadAllBlockedWebsites();
+  updatePopupUI();
 
-  //block UI of current tab
+  //unblock clicked website
+  listOfBlockedSitesDiv.addEventListener("click", (e) => {
+    const targetDiv = e.target;
+    const btn = targetDiv.closest("button");
+    const tabId = btn.dataset.tabId;
 
-  (function () {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      let currentTab = tabs[0];
-      let currentUrl = currentTab?.url;
-
-      chrome.storage.sync.get("websites", function (data) {
-        let alreadyExisted = data?.websites.filter((x) => x.url === currentUrl);
-
-        if (alreadyExisted?.length > 0) {
-          console.log("in if cond", currentTab.id);
-        }
+    if (tabId) {
+      console.log("clicked", tabId);
+      chrome.runtime.sendMessage({
+        action: "deleteWebsite",
+        data: tabId,
       });
-    });
-  })()
+    }
+  });
 
   //clear all blocked websites
   clearAllBlockedSitesBtn.addEventListener("click", () => {
-    chrome.storage.sync.clear(function () {
-      console.log("Sync storage cleared");
+    chrome.runtime.sendMessage({
+      action: "deleteAllWebsites",
     });
   });
 });

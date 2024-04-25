@@ -6,8 +6,7 @@
   "permissions": ["activeTab", "tabs", "storage", "topSites", "cookies","scripts","scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
