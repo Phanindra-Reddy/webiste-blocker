@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="flex items-center justify-between px-2 py-1 rounded-md ease-in duration-300 hover:bg-gray-100" key=${website?.urlData?.id}>
                 <div class="flex items-center gap-2">
                     <img
-                        src=${website?.urlData?.favIconUrl}
+                        src=${website?.urlData?.favIconUrl || "web.png"}
                         alt=${website?.urlData?.title}
                         class="w-8"
                     />
@@ -93,18 +93,21 @@ document.addEventListener("DOMContentLoaded", () => {
   loadAllBlockedWebsites();
 
   //block UI of current tab
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    let currentTab = tabs[0];
-    let currentUrl = currentTab?.url;
 
-    chrome.storage.sync.get("websites", function (data) {
-      let alreadyExisted = data?.websites.filter((x) => x.url === currentUrl);
+  (function () {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      let currentTab = tabs[0];
+      let currentUrl = currentTab?.url;
 
-      if (alreadyExisted?.length > 0) {
-        console.log("in if cond", currentTab.id);
-      }
+      chrome.storage.sync.get("websites", function (data) {
+        let alreadyExisted = data?.websites.filter((x) => x.url === currentUrl);
+
+        if (alreadyExisted?.length > 0) {
+          console.log("in if cond", currentTab.id);
+        }
+      });
     });
-  });
+  })()
 
   //clear all blocked websites
   clearAllBlockedSitesBtn.addEventListener("click", () => {
