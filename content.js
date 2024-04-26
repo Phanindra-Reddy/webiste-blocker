@@ -4,14 +4,22 @@ chrome.storage.sync.get("websites", function (data) {
 
   for (let i = 0; i < blockedWebsites.length; i++) {
     if (window.location.href === blockedWebsites[i].url) {
-      document.documentElement.innerHTML = "Hello world!!";
+      document.documentElement.innerHTML = `
+      <div>  
+        <img src="dom_img.png" alt="stay_focused" />
+      </div>
+      `;
     }
   }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === "changeContent") {
-    document.body.innerHTML = "<h1>Hello World!</h1>";
+    document.body.innerHTML = `
+       <div>  
+        <img src="dom_img.png" alt="stay_focused" />
+      </div>
+    `;
     sendResponse({ message: "Content changed" });
   }
 });
