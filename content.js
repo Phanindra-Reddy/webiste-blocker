@@ -6,7 +6,7 @@ chrome.storage.sync.get("websites", function (data) {
     if (window.location.href === blockedWebsites[i].url) {
       document.documentElement.innerHTML = `
       <div>  
-        <img src="dom_img.png" alt="stay_focused" />
+        <img src="https://phanindra-reddy.github.io/webiste-blocker/dom_img.png" alt="stay_focused" style="width: 100%; height: 100%; object-fit: cover;" />
       </div>
       `;
     }
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === "changeContent") {
     document.body.innerHTML = `
        <div>  
-        <img src="dom_img.png" alt="stay_focused" />
+        <img src="https://phanindra-reddy.github.io/webiste-blocker/dom_img.png" alt="stay_focused"  style="width: 100%; height: 100%; object-fit: cover;"/>
       </div>
     `;
     sendResponse({ message: "Content changed" });
